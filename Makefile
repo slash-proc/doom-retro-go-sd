@@ -29,7 +29,7 @@ HEADER_LOGO := assets/header.bmp
 # CI / stage_release.py metadata (this tree is a CORE only).
 PROJECT_KIND := core
 CORE_NAME := doom
-CORE_VERSION ?= $(shell git describe --tags --dirty 2>/dev/null || echo NOTAG)
+CORE_VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo 0.0.0)
 
 # --- external flash slots (test-firmware flow only; the payload itself is a
 # RAM overlay and is link-address-independent of these) -----------------------
