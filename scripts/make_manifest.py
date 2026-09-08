@@ -388,6 +388,25 @@ def build_tool(declared: dict, wasm_path: Path) -> dict:
             raise SystemExit(
                 f"gwrg.json: output {out.get('id')!r} must state an integer maxBytes"
             )
+        # filename XOR extension. A converter that always produces the same
+        # file names it; one that converts a library derives each name from the
+        # file it converted. Neither leaves the output nameless, and declaring
+        # both would ask the host to pick, which is the decision the spec took
+        # away from everyone. Refused here rather than published: a manifest
+        # that breaks the rule is one a host is entitled to reject, and finding
+        # that out at install time is finding out too late.
+        named = "filename" in out
+        derived = "extension" in out
+        if named == derived:
+            raise SystemExit(
+                f"gwrg.json: output {out.get('id')!r} must state exactly one of "
+                f"filename or extension"
+            )
+        if derived and not str(out["extension"]).startswith("."):
+            raise SystemExit(
+                f"gwrg.json: output {out.get('id')!r} extension must start with "
+                f"a dot, got {out['extension']!r}"
+            )
 
     return {
         "id": declared["id"],
@@ -719,7 +738,10 @@ def main() -> None:
               f"(shipped {shipped}, into /bios/{s.get('biosDir', s['id'])}/)")
     for t in manifest["tools"]:
         print(f"  tool {t['id']} {t['binary']['file']} sha256={t['binary']['sha256'][:16]}…")
-        print(f"  produces {', '.join(o['filename'] for o in t['outputs'])}")
+        # An output states a filename or an extension, never both, so ask for
+        # whichever it has rather than assuming the fixed-name shape.
+        produces = ", ".join(o.get("filename") or f"*{o['extension']}" for o in t["outputs"])
+        print(f"  produces {produces}")
     for s in target.get("symbols", []):
         print(f"  symbols {s['filename']} {s['bytes']}B")
     if "originalSystem" in manifest:
