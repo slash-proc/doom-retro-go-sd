@@ -352,7 +352,6 @@ build-host/whd_gen: $(wildcard $(WHD_GEN_DIR)/*.cpp $(WHD_GEN_DIR)/*.h $(ENGINE)
 	$(WHD_HOST_CC) -O2 -w $(WHD_HOST_INC) -c $(ENGINE)/src/image_decoder.c -o build-host/whdobj/image_decoder.o
 	$(WHD_HOST_CC) -O2 -w $(WHD_HOST_INC) -c $(ENGINE)/src/adpcm-xq/adpcm-lib.c -o build-host/whdobj/adpcm-lib.o
 	$(WHD_HOST_CXX) -O2 -std=gnu++17 -w \
-	  -Wno-error=missing-template-arg-list-after-template-kw \
 	  $(WHD_HOST_INC) \
 	  $(WHD_GEN_DIR)/whd_gen.cpp $(WHD_GEN_DIR)/mus2seq.cpp $(WHD_GEN_DIR)/huff.cpp \
 	  $(WHD_GEN_DIR)/lodepng.cpp $(WHD_GEN_DIR)/compress_mus.cpp $(WHD_GEN_DIR)/wad.cpp \
