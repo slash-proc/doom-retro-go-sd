@@ -39,3 +39,6 @@ TAGS
 .gdb_history
 .vscode/
 .idea/
+
+# --- wasm converter build output ---------------------------------------------
+*.wasm
