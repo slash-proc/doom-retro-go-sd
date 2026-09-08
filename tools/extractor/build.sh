@@ -8,7 +8,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."          # repo root
 
-IMAGE="${WASI_SDK_IMAGE:-ghcr.io/webassembly/wasi-sdk:latest}"
+# Pinned by digest, not by tag. A published module is hashed in the manifest,
+# so the build has to be reproducible; `:latest` would silently change the
+# compiler under a release and there would be no way to tell from the output
+# which one built it. Bump this deliberately, and re-run check.sh when you do.
+WASI_SDK_DIGEST="sha256:52595085a0ffbaf574d8d678a9aa81305f0b3af81c639291f15bc7713e42848e"
+IMAGE="${WASI_SDK_IMAGE:-ghcr.io/webassembly/wasi-sdk@${WASI_SDK_DIGEST}}"
 OUT="tools/extractor/doom_whd.wasm"
 
 # 8192 pages = 512 MiB, and the number is measured, not copied.

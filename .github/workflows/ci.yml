@@ -75,9 +75,38 @@ jobs:
             ${{ steps.meta.outputs.ro_bin }}
           if-no-files-found: error
 
+  # The WAD converter, built as a wasm module. Independent of the device build
+  # -- it shares the engine sources but nothing else -- so it runs in parallel
+  # and gates the release on its own terms.
+  extractor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build the module
+        run: tools/extractor/build.sh
+
+      # The same verifier a browser runs before instantiating. A module that
+      # fails this must never reach a release: the manifest would be a claim
+      # that these bytes are safe to run, and nobody would have checked.
+      - name: Verify the module
+        working-directory: tools/extractor
+        run: node verify.mjs doom_whd.wasm
+
+      - name: Upload the module
+        uses: actions/upload-artifact@v4
+        with:
+          name: extractor-wasm
+          path: tools/extractor/doom_whd.wasm
+          if-no-files-found: error
+
   release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build, extractor]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -92,6 +121,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
+          path: dist
+
+      - name: Download the module
+        uses: actions/download-artifact@v4
+        with:
+          name: extractor-wasm
           path: dist
 
       - name: Stage release assets
@@ -124,6 +159,16 @@ jobs:
       # The ELF is published so a crash address can be resolved to a function.
       # It is named by the manifest but is not part of the install set, so it
       # has to be attached loose like any other file build_dist.py fetches.
+      # The converter module. `binary.url` in the manifest is a plain filename
+      # resolved beside it, so the module has to be attached to the release
+      # like any other published file -- it is not in the repository, because
+      # a built artifact that changes with every compile does not belong there.
+      - name: Stage the module for publication
+        run: |
+          set -euo pipefail
+          cp dist/doom_whd.wasm release/doom_whd.wasm
+          echo doom_whd.wasm >> release/release-files.txt
+
       - name: Stage the ELF for publication
         run: |
           set -euo pipefail
@@ -152,6 +197,7 @@ jobs:
           python3 scripts/make_manifest.py \
             --bin "release/${PACKED_BIN}" \
             "${ARTIFACTS[@]}" \
+            --wasm release/doom_whd.wasm \
             --elf "release/$(basename "${TARGET_ELF}")" \
             --tag "${GITHUB_REF_NAME}" \
             --repo "${GITHUB_REPOSITORY}" \
