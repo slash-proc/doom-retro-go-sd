@@ -1,6 +1,6 @@
 [submodule "rp2040-doom"]
 	path = rp2040-doom
-	url = https://github.com/sylverb/rp2040-doom.git
+	url = git@github.com:slash-proc/rp2040-doom.git
 	branch = perf-investigation
 [submodule "retro-go-porting-toolkit"]
 	path = retro-go-porting-toolkit
