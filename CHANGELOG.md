@@ -14,6 +14,50 @@ When you cut a release:
 
 CI reads the matching section and uses it as the GitHub Release notes.
 
+## [v0.2.0] - 2026-09-09
+
+### Added
+
+- WAD to WHD conversion is published as a WebAssembly module, so a web
+  installer can convert an IWAD in the browser and write the result straight to
+  the card. The module **imports nothing at all** -- no filesystem, no clock,
+  no randomness, no host callback -- which a host checks from the binary before
+  running it, so a user converting a WAD does not have to trust this
+  repository. `tools/extractor/verify.mjs` is the gate; `check.sh` proves the
+  output byte-identical to the native converter.
+- It is the existing C++ converter compiled with wasi-sdk, not a rewrite. All
+  file I/O is served out of the input already sitting in linear memory, and the
+  WASI syscalls wasi-libc would import are defined locally so no import is
+  emitted. The widescreen crop that `make convert` ran as a separate Python
+  step is part of the module, which gets one file and has to do everything
+  to it.
+- `gwrg.json` declares the converter: one input taking a library of WADs, each
+  converted separately into its own game, and a variant table that turns a
+  recognised IWAD into a name worth reading on the card. An unrecognised WAD is
+  still converted, and takes its name from the file it came from.
+- CI builds the module in a digest-pinned container, verifies it, and publishes
+  it beside the manifest.
+
+### Changed
+
+- Huffman trees no longer depend on which standard library built the converter.
+  Ties in the node ordering were left to `std::priority_queue`'s heap, which
+  libstdc++ and libc++ resolve differently, so the same WAD could produce two
+  equally valid trees and two different WHDs. **This changes the bytes**:
+  Doom II goes from 12,522,964 to 12,522,460. Regenerate WHDs to match; the
+  device reads the table out of the file, so either is playable.
+- The engine submodule tracks `slash-proc/rp2040-doom`, with upstream still
+  configured as a remote to merge from and open pull requests against.
+
+### Fixed
+
+- `make build-host/whd_gen` builds with the compiler the Makefile picks. The
+  recipe passed a clang-only warning flag that g++ rejects outright, so the
+  default build failed for anyone without clang first on PATH.
+- `scripts/make_manifest.py` handles an output that declares an extension
+  rather than a filename, and refuses a manifest that declares both or
+  neither instead of emitting one that breaks the spec.
+
 ## [v0.1.0] - 2026-09-08
 
 ### Added
