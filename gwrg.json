@@ -1,9 +1,79 @@
 {
-  "$comment": "The hand-written half of this project's manifest. Everything else -- the systems, their folders, extensions and browse mode, the firmware ABI, sizes and hashes -- is derived from the packed core by scripts/make_manifest.py. Nothing derivable belongs here.",
+  "$comment": "The hand-written half of this project's manifest. Everything else -- the systems, their folders, extensions and browse mode, the firmware ABI, sizes and hashes, the module's memory ceiling, and the target's uses[] -- is derived from the packed core and the built module by scripts/make_manifest.py. Nothing derivable belongs here.",
   "systems": {
     "doom": {
       "shortName": "Doom",
       "compression": false
     }
+  },
+  "tool": {
+    "id": "doom-whd",
+    "title": {
+      "en": "Doom WAD conversion",
+      "fr": "Conversion des WAD de Doom",
+      "de": "Doom-WAD-Konvertierung"
+    },
+    "maxOutputBytes": 25165824,
+    "options": [],
+    "inputs": [
+      {
+        "id": "base",
+        "required": true,
+        "allowMultiple": true,
+        "runPerFile": true,
+        "maxCount": 32,
+        "label": {
+          "en": "Doom WAD",
+          "fr": "WAD de Doom",
+          "de": "Doom-WAD"
+        },
+        "description": {
+          "en": "An IWAD from a Doom game you own. Each WAD is converted separately into its own game on the card.",
+          "fr": "Un IWAD d'un jeu Doom que vous possédez. Chaque WAD est converti séparément en son propre jeu sur la carte.",
+          "de": "Eine IWAD aus einem Doom-Spiel, das Ihnen gehört. Jede WAD wird einzeln in ein eigenes Spiel auf der Karte umgewandelt."
+        },
+        "extensions": [".wad"],
+        "maxBytes": 67108864,
+        "strict": false,
+        "variants": [
+          {
+            "id": "ultimate",
+            "sha1": "87651324502044f9a6eed403e48853aa16c93e49",
+            "bytes": 12996515,
+            "filename": "The Ultimate Doom.whd"
+          },
+          {
+            "id": "ultimate-unity",
+            "sha1": "2a8a1ce0f29497a2781b2902c76115fd60d8bbf8",
+            "bytes": 12702921,
+            "filename": "The Ultimate Doom - Unity.whd"
+          },
+          {
+            "id": "doom2",
+            "sha1": "2921cf667359fd3a80aba3c0cf62ab39297e7e9e",
+            "bytes": 14951361,
+            "filename": "Doom II - Hell on Earth.whd"
+          },
+          {
+            "id": "shareware",
+            "sha1": "5b2e249b9c5133ec987b3ea77596381dc0d6bc1d",
+            "bytes": 4196020,
+            "filename": "Doom - Shareware.whd"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "id": "whd",
+        "extension": ".whd",
+        "maxBytes": 25165824,
+        "label": {
+          "en": "Converted Doom game",
+          "fr": "Jeu Doom converti",
+          "de": "Konvertiertes Doom-Spiel"
+        }
+      }
+    ]
   }
 }
