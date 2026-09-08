@@ -408,7 +408,7 @@ $(PACKED_BIN): $(OUTBIN) $(BUILD)/doom.out $(PAD_LOGO) $(HEADER_LOGO) $(PACK_COR
 		--system-name "Doom" --dirname doom \
 		--extensions "whd" \
 		--core-name "Doom" \
-		--version 1.0.0 \
+		--version "$(CORE_VERSION)" \
 		--pad-logo $(PAD_LOGO) \
 		--header-logo $(HEADER_LOGO) \
         --logo-invert \
