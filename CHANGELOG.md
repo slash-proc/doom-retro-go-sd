@@ -57,6 +57,11 @@ CI reads the matching section and uses it as the GitHub Release notes.
 - `scripts/make_manifest.py` handles an output that declares an extension
   rather than a filename, and refuses a manifest that declares both or
   neither instead of emitting one that breaks the spec.
+- `scripts/build_dist.py` no longer drops a release for declaring fields the
+  spec added. Its check is an allowlist meant to keep an outdated manifest out
+  of the mirror, and it could not tell "too old" from "too new": a manifest
+  using `extension`, `allowMultiple`, `runPerFile` or `maxCount` was silently
+  left out of `versions.json` while the publish job stayed green.
 
 ## [v0.1.0] - 2026-09-08
 
