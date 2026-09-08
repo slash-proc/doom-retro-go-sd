@@ -29,6 +29,7 @@ HEADER_LOGO := assets/header.bmp
 # CI / stage_release.py metadata (this tree is a CORE only).
 PROJECT_KIND := core
 CORE_NAME := doom
+CORE_VERSION ?= $(shell git describe --tags --dirty 2>/dev/null || echo NOTAG)
 
 # --- external flash slots (test-firmware flow only; the payload itself is a
 # RAM overlay and is link-address-independent of these) -----------------------
@@ -531,17 +532,31 @@ build/firmware.bin: build/firmware.out
 #######################################
 # CI helpers + Docker (same image as firmware)
 #######################################
-.PHONY: print-PROJECT_KIND print-PACKED_BIN print-CORE_NAME print-DOCKER_IMAGE \
+.PHONY: print-PROJECT_KIND print-PACKED_BIN print-SIDECARS print-RO_BIN print-CORE_NAME \
+        print-DOCKER_IMAGE print-TARGET_ELF print-TARGET_MAP print-CORE_VERSION \
         docker docker_pull docker_shell
 
 print-PROJECT_KIND:
 	@echo $(PROJECT_KIND)
 print-PACKED_BIN:
 	@echo $(PACKED_BIN)
+# Extra device files installed beside PACKED_BIN, space separated.
+print-SIDECARS:
+	@echo $(SIDECARS)
+print-RO_BIN:
+	@echo $(RO_BIN)
 print-CORE_NAME:
 	@echo $(CORE_NAME)
 print-DOCKER_IMAGE:
 	@echo $(DOCKER_IMAGE)
+# The engine links to $(BUILD)/doom.out with -Wl,-Map=$(BUILD)/main.map; both
+# are what the debug zip and the symbols[] entry publish.
+print-TARGET_ELF:
+	@echo $(BUILD)/doom.out
+print-TARGET_MAP:
+	@echo $(BUILD)/main.map
+print-CORE_VERSION:
+	@echo $(CORE_VERSION)
 
 RELEASE_VERSION ?= v1.5
 DOCKER_REPOSITORY ?= sylverb/retro-go-sd-builder
