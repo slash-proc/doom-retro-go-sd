@@ -53,6 +53,9 @@ endif
 
 # Objects land in build/core[/ -trace]
 BUILD := build/$(VARIANT)$(if $(filter 1,$(TRACE)),-trace)
+# Linked ELF + map for CI debug zip (names differ from template *_core.elf).
+TARGET_ELF := $(BUILD)/doom.out
+TARGET_MAP := $(BUILD)/main.map
 
 # Full WHD format for every convert (matches the full core binary).
 WHDFLAGS := -no-super-tiny
@@ -532,6 +535,7 @@ build/firmware.bin: build/firmware.out
 # CI helpers + Docker (same image as firmware)
 #######################################
 .PHONY: print-PROJECT_KIND print-PACKED_BIN print-CORE_NAME print-DOCKER_IMAGE \
+        print-TARGET_ELF print-TARGET_MAP \
         docker docker_pull docker_shell
 
 print-PROJECT_KIND:
@@ -542,6 +546,10 @@ print-CORE_NAME:
 	@echo $(CORE_NAME)
 print-DOCKER_IMAGE:
 	@echo $(DOCKER_IMAGE)
+print-TARGET_ELF:
+	@echo $(TARGET_ELF)
+print-TARGET_MAP:
+	@echo $(TARGET_MAP)
 
 RELEASE_VERSION ?= v1.5
 DOCKER_REPOSITORY ?= sylverb/retro-go-sd-builder
