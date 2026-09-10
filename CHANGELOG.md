@@ -14,6 +14,16 @@ When you cut a release:
 
 CI reads the matching section and uses it as the GitHub Release notes.
 
+## [Unreleased]
+
+### Added
+
+- A browser conversion page, published to GitHub Pages by CI. It takes one
+  folder, finds every `.wad` under it at any depth, converts each one and hands
+  back a single zip already laid out for the card: `cores/doom.bin` and the
+  converted games under `roms/doom/`. A recognised IWAD takes the name this
+  project chose for it, so `DOOM.WAD` arrives as `The Ultimate Doom.whd`.
+
 ## [v0.2.1] - 2026-09-09
 
 ### Changed

@@ -87,15 +87,49 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build the module
-        run: tools/extractor/build.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-      # The same verifier a browser runs before instantiating. A module that
-      # fails this must never reach a release: the manifest would be a claim
-      # that these bytes are safe to run, and nobody would have checked.
-      - name: Verify the module
+      # check.sh builds the module, runs the conformance verifier over it -- the
+      # same verifier a browser runs before instantiating, and a module that
+      # fails it must never reach a release, because a manifest is a claim that
+      # these bytes are safe to run -- and feeds it three malformed WADs to
+      # prove each comes back as an error rather than a trap. Given a WAD it
+      # also compares the output byte for byte against the native converter.
+      # That last part cannot run here and neither can test-convert.mjs: both
+      # need commercial WAD data, which this project cannot ship and CI cannot
+      # obtain. They stay local checks, run before a release is cut:
+      #
+      #   ./check.sh /path/to/doom2.wad
+      #   ./build-page.sh && node test-convert.mjs site /path/to/doom
+      - name: Build and check the module
+        run: tools/extractor/check.sh
+
+      # The page is translated seven ways, so a renamed string is the easiest
+      # thing to ship broken: the page still loads and the control is simply
+      # blank for that language.
+      - name: Page strings resolve in every locale
         working-directory: tools/extractor
-        run: node verify.mjs doom_whd.wasm
+        run: node test-i18n.mjs
+
+      # install.mjs decides where every produced file lands, and for a core that
+      # is two directories: the core binary in one, the games it converts in
+      # another. Its own tests, because a name derived from the user's file is
+      # the one part of the install set no publisher reviewed.
+      - name: Install planning
+        working-directory: tools/extractor
+        run: node test-install.mjs
+
+      # The page, assembled against a preview dist built from the module just
+      # built, and walked the way app.js walks it. This is the last chance to
+      # catch a page and a manifest that disagree before a tag exists.
+      - name: The page loads what it is given
+        working-directory: tools/extractor
+        run: |
+          set -euo pipefail
+          ./build-page.sh
+          node test-site.mjs site
 
       - name: Upload the module
         uses: actions/upload-artifact@v4
@@ -330,6 +364,32 @@ jobs:
       # Pages must already be enabled on the repository (Settings -> Pages ->
       # Source: GitHub Actions). `enablement: true` cannot do it: creating a
       # Pages site needs repo-administration scope, which GITHUB_TOKEN lacks.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The conversion page, at the site root. The spec leaves the root free for
+      # exactly this, and the page reads the manifest build_dist.py just
+      # mirrored -- the same file, fetched the same way, as any third-party
+      # installer. That is what makes this page a test of the distribution model
+      # rather than a nicety beside it.
+      - name: Build the conversion page
+        run: |
+          set -euo pipefail
+          cd tools/extractor
+          # DIST_DIR is the mirror that already exists, so the page ships the
+          # real published versions instead of the preview dist build-page.sh
+          # would otherwise generate. No MANIFEST_URL: setting it pins the page
+          # to one version and hides the picker, so a release would need a
+          # redeploy to be offered.
+          DIST_DIR="${GITHUB_WORKSPACE}/_site/dist" \
+            VERSIONS_URL="dist/versions.json" ./build-page.sh
+          node test-site.mjs site
+          cp -r site/. "${GITHUB_WORKSPACE}/_site/"
+
+      - name: Show what will be published
+        run: find _site -maxdepth 2 -printf "%P\n" | sort
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

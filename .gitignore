@@ -42,3 +42,6 @@ TAGS
 
 # --- wasm converter build output ---------------------------------------------
 *.wasm
+
+# --- assembled conversion page (build-page.sh output) ------------------------
+/tools/extractor/site/

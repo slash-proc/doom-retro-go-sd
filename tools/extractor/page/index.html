@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Deliberately generic. Every project-specific word on this page comes from
+     the manifest, which has not been fetched yet at this point; app.js sets the
+     real title and heading as soon as it has one. A game name written here
+     would be a second place to change it, and the wrong one for any other
+     project vendoring this same page. -->
+<title>Asset converter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <!-- The static text here is English, which is the base locale. i18n.js
+       replaces every [data-i18n] node on load and on each language change, so
+       what ships in the markup is a readable fallback rather than the source
+       of truth. -->
+  <header class="page-head">
+    <h1 id="title">Asset converter</h1>
+    <select id="lang" class="lang-select"
+            data-i18n-title="lang.label" data-i18n-aria-label="lang.aria"></select>
+  </header>
+
+  <p class="lede">
+    <span id="lede-text">Converts the game data this core reads</span><button
+      type="button" id="why" class="why" aria-expanded="false"
+      data-i18n-aria-label="why.label" data-i18n-title="why.label">?</button>
+  </p>
+  <p id="why-text" class="why-text" data-i18n="why.text" hidden></p>
+
+  <!-- Which release to convert against. Read from the site's own
+       dist/versions.json, newest first, so a new release reaches users without
+       redeploying this page. Hidden when there is only one thing to load: a
+       pinned build, or an offline bundle. -->
+  <div class="version-bar">
+    <span id="version-wrap" hidden>
+      <label for="version" data-i18n="version.label">Version</label>
+      <select id="version" class="version-select"></select>
+      <span id="prerelease-wrap" hidden>
+        <input type="checkbox" id="prerelease">
+        <label for="prerelease" data-i18n="version.showPrereleases">Show pre-releases</label>
+      </span>
+    </span>
+    <span id="version-note" class="version-note" hidden></span>
+  </div>
+
+  <div id="fatal" class="status bad" hidden></div>
+  <!-- A version that publishes no converter: nothing to supply, nothing to run. -->
+  <p id="no-converter" class="status" hidden></p>
+
+  <!-- Populated only after the converter has been fetched, hash-matched
+       against its manifest and passed conformance verification. Its presence
+       is therefore the visible result of that check, while what it actually
+       says is the thing a user wants to know: what goes in, what comes out. -->
+  <div id="about" hidden>
+    <div class="io">
+      <div><span class="k" data-i18n="io.input">Input</span><span id="io-in"></span></div>
+      <div class="arrow" aria-hidden="true">&rarr;</div>
+      <div><span class="k" data-i18n="io.output">Output</span><span id="io-out"></span></div>
+    </div>
+  </div>
+
+  <section id="input">
+    <h2><span class="step">1.</span> <span data-i18n="input.heading">Game folder</span></h2>
+    <!-- One directory, and everything underneath it is in scope. A Doom install
+         keeps its IWAD beside the executable, a re-release keeps it in a base/
+         subfolder, and a folder of WADs someone collected has no layout at all,
+         so the page walks whatever it is given. -->
+    <p id="input-desc" class="role-desc"></p>
+    <div class="pick-row">
+      <button type="button" id="pick" class="choose">Choose folder</button>
+      <button type="button" id="pick-files" class="choose secondary">Choose files</button>
+      <!-- webkitdirectory is the only way a browser hands over a subtree, and
+           it hands over the whole thing: every file, with its path. The plain
+           picker beside it is the fallback for a browser without it. -->
+      <input type="file" id="dir-input" class="file-input" webkitdirectory directory multiple>
+      <input type="file" id="file-input" class="file-input" multiple>
+    </div>
+    <div id="scan-status" class="status" hidden></div>
+
+    <!-- What was found, before anything is converted. The point of showing it
+         is that pointing at the wrong folder is visible here rather than after
+         a conversion or four, and the count above says that in one line. The
+         rows themselves are the same four facts each, so they sit behind a
+         disclosure and the count carries the page. -->
+    <div id="found" hidden>
+      <details id="found-detail" class="found-detail">
+        <summary id="found-toggle">Per-WAD detail</summary>
+        <ul id="found-list" class="found-list"></ul>
+      </details>
+    </div>
+    <!-- What was passed over, and why. Never silent. -->
+    <ul id="skipped" class="skipped" hidden></ul>
+  </section>
+
+  <section id="run">
+    <h2><span class="step">2.</span> <span data-i18n="run.heading">Convert</span></h2>
+    <button id="go" data-i18n="run.button" disabled>Convert</button>
+    <div id="run-status" class="status" hidden></div>
+    <div id="results" hidden>
+      <h3 data-i18n="results.heading">Converted files</h3>
+      <!-- The converted games are only half an install: the rest is what the
+           project published, which the manifest already names and hashes. This
+           offers both as one download, in the folders they go in on the card
+           -- the core in one, the games in another -- rather than sending the
+           user off to find the other half themselves.
+           It is the whole reason anyone came here, so it is the one prominent
+           control and the per-file detail below it stays folded away. -->
+      <div id="zip-wrap" class="zip-wrap" hidden>
+        <button type="button" id="zip" class="zip-button">Download the install zip</button>
+        <p id="zip-note" class="zip-note"></p>
+        <div id="zip-status" class="status" hidden></div>
+      </div>
+
+      <!-- Rows nobody reads, unless something went wrong: then it is the only
+           place that says which WAD and why. Collapsed by default, one row per
+           file, with the individual download still there for someone
+           re-converting a single WAD. -->
+      <details id="file-detail" class="file-detail">
+        <summary id="file-summary">Per-file detail</summary>
+        <div class="table-scroll">
+          <table class="file-table">
+            <thead>
+              <tr>
+                <th data-i18n="results.colSource">WAD</th>
+                <th data-i18n="results.colFile">Output</th>
+                <th data-i18n="results.colStatus">Status</th>
+                <th class="num" data-i18n="results.colSize">Size</th>
+                <th data-i18n="results.hash">SHA-256</th>
+                <th data-i18n="results.colDownload">Download</th>
+              </tr>
+            </thead>
+            <tbody id="file-rows"></tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      <span data-i18n="footer.source">Source and documentation:</span>
+      <a id="repo-link" href="#" data-i18n="footer.repo">the project repository</a>.
+      <span data-i18n="footer.published">This page is published from the same CI
+      run that builds and verifies the module, so the two always match.</span>
+    </p>
+  </footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

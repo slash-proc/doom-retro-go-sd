@@ -1,0 +1,300 @@
+:root {
+  color-scheme: light dark;
+  --fg: #1a1a1a; --bg: #fbfbfa; --muted: #5c5c5c;
+  --line: #d8d6d1; --card: #fff;
+  --ok: #1a6b32; --bad: #a11d1d; --warn: #7a5a00;
+  --accent: #1f4fa3;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e6e6e6; --bg: #16181c; --muted: #a0a0a0;
+    --line: #33363c; --card: #1e2126;
+    --ok: #6cc98a; --bad: #f0837f; --warn: #e0b64a;
+    --accent: #8ab4f8;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+h1 { font-size: 1.5rem; margin: 0 0 .4rem; }
+h2 { font-size: 1rem; margin: 2.2rem 0 .7rem; padding-bottom: .3rem;
+     border-bottom: 1px solid var(--line); }
+h3 { font-size: .9rem; margin: 1rem 0 .4rem; }
+.lede { color: var(--muted); margin: 0 0 1rem; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
+.why {
+  font: 600 11px/1 system-ui, sans-serif; margin-left: .35rem; padding: 0;
+  width: 15px; height: 15px; border-radius: 50%; vertical-align: 1px;
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  cursor: help;
+}
+.why:hover { color: var(--fg); border-color: var(--muted); }
+#module-line { font-size: .75rem; word-break: break-all; opacity: .7; }
+.status { font-size: .9rem; padding: .5rem 0; }
+.status.ok::before   { content: "✓ "; color: var(--ok); font-weight: 700; }
+.status.bad::before  { content: "✗ "; color: var(--bad); font-weight: 700; }
+.status.busy::before { content: "… "; color: var(--muted); }
+.status.bad { color: var(--bad); }
+table { border-collapse: collapse; font-size: .85rem; width: 100%; }
+td { padding: .25rem .6rem .25rem 0; vertical-align: top; }
+td:first-child { color: var(--muted); white-space: nowrap; width: 1%; }
+td.mono { font-family: ui-monospace, monospace; word-break: break-all; }
+details { margin-top: .6rem; font-size: .85rem; }
+summary { cursor: pointer; color: var(--accent); }
+details ul { margin: .5rem 0; padding-left: 1.2rem; }
+.note { color: var(--muted); font-size: .85rem; }
+.opt { display: block; margin-top: .7rem; font-size: .85rem; color: var(--muted); }
+button {
+  font: inherit; padding: .5rem 1.1rem; border-radius: 5px;
+  border: 1px solid var(--line); background: var(--card); color: var(--fg);
+  cursor: pointer;
+}
+button:disabled { opacity: .5; cursor: not-allowed; }
+#accepted { font-size: .85rem; color: var(--muted); margin-bottom: .8rem; }
+#accepted li { word-break: break-all; }
+#warnings { color: var(--warn); font-size: .85rem; }
+footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line);
+         color: var(--muted); font-size: .85rem; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; margin-top: .5rem;
+       overflow: hidden; }
+.bar > div { height: 100%; width: 0; background: var(--accent); transition: width .12s linear; }
+
+.status.warn::before { content: "! "; color: var(--warn); font-weight: 700; }
+.status.warn { color: var(--warn); }
+.role.disabled { opacity: .5; pointer-events: none; }
+
+#about {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 5px; padding: .75rem .9rem; margin: 1.2rem 0 .5rem;
+}
+.io { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; font-size: .9rem; }
+.io .k { display: block; font-size: .7rem; text-transform: uppercase;
+         letter-spacing: .05em; color: var(--muted); }
+.io .arrow { color: var(--muted); font-size: 1.1rem; }
+.io-note { margin: .6rem 0 0; font-size: .78rem; color: var(--muted); }
+
+.mark { margin-left: .4rem; font-weight: 700; }
+.mark.ok { color: var(--ok); }
+.mark.warn { color: var(--warn); }
+
+.hash-toggle {
+  font: inherit; font-size: .8rem; padding: 0; border: 0; background: none;
+  color: var(--accent); cursor: pointer; text-decoration: underline dotted;
+}
+.hash-toggle.ok { color: var(--ok); }
+.hash-toggle.bad { color: var(--bad); }
+.hash-value { display: block; margin-top: .2rem; word-break: break-all; opacity: .8; }
+/* display:block would otherwise beat the user agent's [hidden] rule. */
+.hash-value[hidden] { display: none; }
+
+/* --- page header: title left, language picker right --------------------- */
+.page-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.lang-select {
+  font: inherit;
+  font-size: .85rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: .15rem .3rem;
+  /* Language names differ wildly in width, so let the control size to its
+     content rather than reserving room for the longest one. */
+  width: auto;
+  text-align-last: center;
+  cursor: pointer;
+}
+.lang-select:hover { color: var(--fg); border-color: var(--accent); }
+
+/* --- one block per declared input role ---------------------------------- */
+.role + .role { margin-top: 1rem; }
+.role-head { display: flex; align-items: baseline; gap: .5rem; }
+.role-label { font-weight: 600; font-size: .95rem; }
+.role-optional {
+  font-size: .75rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 .4rem;
+}
+.role-desc { margin: .2rem 0 .6rem; font-size: .85rem; color: var(--muted); }
+
+/* Drag and drop still works, it is just not advertised. A role shows nothing
+   at rest and a quiet tint only while a file is actually over it, so the page
+   is not covered in landing pads waiting for something that may never
+   happen. */
+.role {
+  border: 1px solid transparent; border-radius: 6px;
+  padding: .4rem .5rem; margin-left: -.5rem; margin-right: -.5rem;
+  transition: background-color .12s linear, border-color .12s linear;
+}
+.role.over { border-color: var(--accent); background: var(--card); }
+
+/* The file input is driven by the button beside it, so it is never shown. */
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0;
+              pointer-events: none; }
+.file-row { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+.file-name { font-size: .9rem; word-break: break-all; }
+.file-name.empty { color: var(--muted); }
+
+.file-list { list-style: none; margin: 0 0 .6rem; padding: 0; }
+/* The list is hidden until there is something in it, and display:flex on the
+   rows would otherwise beat the user agent's [hidden] rule. */
+.file-list[hidden] { display: none; }
+.file-list li {
+  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+  border: 1px solid var(--line); border-radius: 5px; background: var(--card);
+  padding: .45rem .6rem; margin-bottom: .4rem; font-size: .9rem;
+}
+.file-list .file-name { flex: 1 1 14rem; }
+.file-variant { color: var(--muted); font-size: .85rem; }
+.remove { font-size: .85rem; padding: .25rem .7rem; color: var(--muted); }
+.remove:hover { color: var(--bad); border-color: var(--bad); }
+
+/* A role's "?" panel: same treatment as the one beside the lede. */
+.role-help { margin: .1rem 0 .6rem; }
+.role-help .help-line { margin: 0 0 .4rem; }
+.role-help details { margin-top: .2rem; }
+.hash-list { list-style: none; margin: .4rem 0 0; padding: 0; }
+.hash-list li { display: flex; justify-content: space-between; gap: .8rem;
+                flex-wrap: wrap; padding: .1rem 0; }
+.hash-list code { word-break: break-all; opacity: .8; }
+
+.why-text {
+  margin: -.2rem 0 1rem;
+  font-size: .85rem;
+  color: var(--muted);
+  max-width: 46rem;
+}
+.why[aria-expanded="true"] { border-color: var(--accent); color: var(--fg); }
+
+/* The version bar. A quiet row above the fold: which release this page is
+   converting against, and how to reach the ones it is not showing. */
+.version-bar {
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  margin: 0 0 1.2rem; font-size: .85rem; color: var(--muted);
+}
+.version-bar label { color: var(--muted); }
+.version-select {
+  font: inherit; color: var(--fg); background: var(--card);
+  border: 1px solid var(--line); border-radius: 5px; padding: .2rem .4rem;
+}
+.version-select:disabled { opacity: .6; }
+.version-note { color: var(--muted); }
+.version-note a { color: var(--accent); }
+
+/* --- the library this page converts -------------------------------------- */
+/*
+ * A folder of WADs rather than a single ROM, so the list is the centre of
+ * the page and it has to stay readable at 21 rows. Each row says the same four
+ * things in the same four columns: what it is, how big, whether we recognise
+ * it, and what it will be called on the card. A grid rather than a table
+ * because it has to collapse to two lines on a phone without a horizontal
+ * scrollbar.
+ */
+.pick-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.choose.secondary { background: transparent; color: var(--muted); }
+.choose.secondary:hover { color: var(--fg); }
+/* The real controls. Hidden because a bare file input cannot be styled and
+   sits badly beside a button; the buttons above click them. */
+.file-input { display: none; }
+/* Dropping a folder works too. The cue appears only while something is over
+   the section, rather than a permanent dashed box advertising itself. */
+#input.over { outline: 2px dashed var(--accent); outline-offset: .5rem; }
+
+.role-desc { color: var(--muted); font-size: .9rem; margin: 0 0 .8rem; }
+
+/* The rows are behind a click: twenty-one lines of the same four facts is not
+   what the page has to say about a scan, the count above it is. */
+.found-detail { margin-top: .4rem; }
+.found-detail > summary { color: var(--muted); font-size: .85rem; }
+.found-detail > summary:hover { color: var(--accent); }
+
+.found-list { list-style: none; padding: 0; margin: .5rem 0 0; }
+.found-list li {
+  display: grid;
+  grid-template-columns: minmax(6rem, 1fr) auto minmax(8rem, auto) auto;
+  gap: .3rem .8rem;
+  align-items: baseline;
+  padding: .3rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: .9rem;
+}
+.f-name { font-weight: 600; word-break: break-all; }
+.f-size { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.f-mark { font-size: .8rem; }
+.f-mark.ok { color: var(--ok); }
+.f-mark.warn { color: var(--warn); }
+.f-to { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+/* The stage the module is on, in the row for the WAD it is on. One bar per
+   row would be 21 bars for a job that is already reported once above. */
+.f-progress { grid-column: 1 / -1; color: var(--muted); font-size: .75rem; min-height: 1em; }
+
+@media (max-width: 34rem) {
+  .found-list li { grid-template-columns: 1fr auto; }
+  .f-mark, .f-to { grid-column: 1 / -1; }
+}
+
+/* What was passed over. Never silent, and never louder than the list above. */
+.skipped { list-style: none; padding: 0; margin: .8rem 0 0;
+           color: var(--warn); font-size: .8rem; }
+.skipped li { margin-bottom: .25rem; word-break: break-word; }
+
+/* --- results: one archive, and the detail folded up behind it ------------ */
+/*
+ * Nobody came here for twenty-one download links. The archive is the answer, so
+ * it is the only thing at full size, and the per-file table is a disclosure
+ * under it: closed at rest, and the first place to look when a WAD did not
+ * come out right.
+ */
+.zip-wrap { margin-top: 1rem; padding-top: 0; border-top: 0; }
+.zip-button {
+  font-size: 1.05rem; font-weight: 600; padding: .8rem 1.5rem;
+  border-color: var(--accent); background: var(--accent); color: #fff;
+}
+/* The accent is a light-mode blue on white and a dark-mode blue meant to be
+   read as text, so the label colour has to follow it rather than be white
+   twice. */
+@media (prefers-color-scheme: dark) {
+  .zip-button { color: #11131a; }
+}
+.zip-button:hover:not(:disabled) { filter: brightness(1.08); }
+.zip-note { color: var(--muted); font-size: .85rem; margin: .5rem 0 0;
+            word-break: break-word; }
+
+.file-detail { margin-top: 1.2rem; }
+.file-detail > summary { color: var(--muted); font-size: .85rem; }
+.file-detail > summary:hover { color: var(--accent); }
+/* A six-column table on a phone is a horizontal scroll or a broken layout, and
+   a scroll inside the disclosure is the honest one. */
+.table-scroll { overflow-x: auto; margin-top: .6rem; }
+.file-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.file-table th {
+  text-align: left; font-weight: 600; color: var(--muted);
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .04em;
+  padding: 0 .7rem .35rem 0; border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.file-table td {
+  padding: .35rem .7rem .35rem 0; border-bottom: 1px solid var(--line);
+  vertical-align: top; color: var(--fg); width: auto; white-space: normal;
+}
+.file-table td.out { font-weight: 600; word-break: break-all; }
+.file-table td.num, .file-table th.num { text-align: right; white-space: nowrap; }
+.file-table td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                      color: var(--muted); }
+.file-table td.st.ok { color: var(--ok); }
+.file-table td.st.warn { color: var(--warn); }
+.file-table td.st.bad { color: var(--bad); }
+/* The module’s own sentence about a WAD it could not place: a note under the
+   verdict, quieter than it and never mistaken for one. */
+.st-note { display: block; color: var(--muted); font-size: .75rem;
+           max-width: 22rem; word-break: break-word; }
+.file-table a { color: var(--accent); white-space: nowrap; }
