@@ -1,5 +1,4 @@
 {
-  "$comment": "The hand-written half of this project's manifest. Everything else -- the systems, their folders, extensions and browse mode, the firmware ABI, sizes and hashes, the module's memory ceiling, and the target's uses[] -- is derived from the packed core and the built module by scripts/make_manifest.py. Nothing derivable belongs here.",
   "systems": {
     "doom": {
       "shortName": "Doom",
@@ -32,7 +31,9 @@
           "fr": "Un IWAD d'un jeu Doom que vous possédez. Chaque WAD est converti séparément en son propre jeu sur la carte.",
           "de": "Eine IWAD aus einem Doom-Spiel, das Ihnen gehört. Jede WAD wird einzeln in ein eigenes Spiel auf der Karte umgewandelt."
         },
-        "extensions": [".wad"],
+        "extensions": [
+          ".wad"
+        ],
         "maxBytes": 67108864,
         "strict": false,
         "variants": [
