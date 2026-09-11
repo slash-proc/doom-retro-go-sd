@@ -64,6 +64,17 @@ jobs:
             "${{ env.DOCKER_IMAGE }}" \
             make --no-print-directory -j"$(nproc)" all
 
+      # The shareware episode, converted with this project's own whd_gen so it
+      # matches what the converter page produces today. Built in the same image
+      # as the core because it uses the same host tool.
+      - name: Build the shipped game
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" \
+            -v "${{ github.workspace }}:/opt/workdir" \
+            -w /opt/workdir \
+            "${{ env.DOCKER_IMAGE }}" \
+            make --no-print-directory shipped-games
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -73,6 +84,7 @@ jobs:
             ${{ steps.meta.outputs.target_elf }}
             ${{ steps.meta.outputs.target_map }}
             ${{ steps.meta.outputs.ro_bin }}
+            build/core/games/
           if-no-files-found: error
 
   # The WAD converter, built as a wasm module. Independent of the device build
@@ -230,9 +242,21 @@ jobs:
           if [ -n "${COVER_FULL}" ]; then
             COVER_ARGS+=(--cover "release/$(basename "${COVER_FULL}")")
           fi
+          # Games published with the release. Copied under their installed
+          # names -- which may contain spaces -- so make never sees them.
+          GAME_ARGS=()
+          GAMES_DIR="$(make --no-print-directory print-SHIPPED_GAMES)"
+          if [ -d "dist/${GAMES_DIR}" ]; then
+            while IFS= read -r -d '' game; do
+              cp "${game}" "release/$(basename "${game}")"
+              basename "${game}" >> release/release-files.txt
+              GAME_ARGS+=(--game "release/$(basename "${game}")")
+            done < <(find "dist/${GAMES_DIR}" -type f -print0)
+          fi
           python3 scripts/make_manifest.py \
             --bin "release/${PACKED_BIN}" \
             "${ARTIFACTS[@]}" \
+            "${GAME_ARGS[@]}" \
             --wasm release/doom_whd.wasm \
             --elf "release/$(basename "${TARGET_ELF}")" \
             --tag "${GITHUB_REF_NAME}" \

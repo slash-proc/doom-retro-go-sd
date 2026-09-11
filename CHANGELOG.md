@@ -29,6 +29,25 @@ CI reads the matching section and uses it as the GitHub Release notes.
   back a single zip already laid out for the card: `cores/doom.bin` and the
   converted games under `roms/doom/`. A recognised IWAD takes the name this
   project chose for it, so `DOOM.WAD` arrives as `The Ultimate Doom.whd`.
+- The shareware episode ships with the release. It installs to
+  `roms/doom/Doom - Shareware.whd` and plays immediately, so the core does
+  something useful before the user supplies a WAD of their own. Converted here
+  by this project's `whd_gen`, so it carries the deterministic Huffman ordering
+  from v0.2.0; the copy upstream committed predates that fix and differs by 128
+  bytes. The name is the one the variant table gives that dump, so a user who
+  later converts the same WAD overwrites it instead of ending up with two
+  copies.
+- `gwrg.json` declares it through the spec's new `systems[].games[]`, the
+  ROM-folder counterpart of a shipped BIOS: published beside the manifest,
+  mirrored and hash-checked, installed to `roms/<system id>/`.
+
+### Fixed
+
+- `merge_systems()` in the shared manifest generator set `biosDir` and
+  `runtime` and then dropped both from the system it emitted. No project here
+  declares `biosDir`, so Doom's own manifests were unaffected, but SMSPlusGX
+  and pce-go published manifests that sent a host to the wrong BIOS folder.
+  Taken with the rest of the shared-script update.
 
 ### Changed
 

@@ -421,6 +421,33 @@ $(PACKED_BIN): $(OUTBIN) $(BUILD)/doom.out $(PAD_LOGO) $(HEADER_LOGO) $(PACK_COR
 		--out $(PACKED_BIN)
 	@echo "== $(PACKED_BIN) → /cores/ =="
 
+# --- shipped game -------------------------------------------------------------
+# The shareware episode, converted here and published with the release so an
+# install is playable without the user supplying a WAD. Freely redistributable
+# since 1993. The name is the one gwrg.json's variant table gives this dump, so
+# a user who later converts the same WAD themselves overwrites it rather than
+# ending up with two copies under different names.
+SHAREWARE_WAD  := doom1-shareware.wad
+# The installed name carries a space, and make splits target lists on spaces,
+# so the build target is space-free and the final name is only ever handled by
+# the shell. CI collects whatever lands in this directory.
+SHIPPED_GAMES  := $(BUILD)/games
+SHAREWARE_WHD  := $(BUILD)/doom-shareware.whd
+SHAREWARE_NAME := Doom - Shareware.whd
+
+$(BUILD)/wad-cropped-shareware.wad: $(SHAREWARE_WAD) scripts/build/wadwide.py
+	@mkdir -p $(BUILD)
+	python3 scripts/build/wadwide.py $(SHAREWARE_WAD) $@
+
+$(SHAREWARE_WHD): $(BUILD)/wad-cropped-shareware.wad build-host/whd_gen
+	build-host/whd_gen $< $@ $(WHDFLAGS)
+
+.PHONY: shipped-games
+shipped-games: $(SHAREWARE_WHD)
+	@mkdir -p "$(SHIPPED_GAMES)"
+	cp "$(SHAREWARE_WHD)" "$(SHIPPED_GAMES)/$(SHAREWARE_NAME)"
+	@echo "== $(SHIPPED_GAMES)/$(SHAREWARE_NAME) → /roms/doom/ =="
+
 # Host WAD → WHD (-no-super-tiny for every IWAD; matches the full core).
 convert: build-host/whd_gen
 	@test -f "$(WAD)" || (echo "error: WAD=$(WAD) not found"; exit 1)
@@ -537,7 +564,7 @@ build/firmware.bin: build/firmware.out
 #######################################
 # CI helpers + Docker (same image as firmware)
 #######################################
-.PHONY: print-PROJECT_KIND print-PACKED_BIN print-SIDECARS print-RO_BIN print-CORE_NAME \
+.PHONY: print-PROJECT_KIND print-PACKED_BIN print-SIDECARS print-SHIPPED_GAMES print-RO_BIN print-CORE_NAME \
         print-DOCKER_IMAGE print-TARGET_ELF print-TARGET_MAP print-CORE_VERSION \
         docker docker_pull docker_shell
 
@@ -548,6 +575,9 @@ print-PACKED_BIN:
 # Extra device files installed beside PACKED_BIN, space separated.
 print-SIDECARS:
 	@echo $(SIDECARS)
+# Games published with the release and installed to roms/<system id>/.
+print-SHIPPED_GAMES:
+	@echo $(SHIPPED_GAMES)
 print-RO_BIN:
 	@echo $(RO_BIN)
 print-CORE_NAME:

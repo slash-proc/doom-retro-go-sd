@@ -2,7 +2,20 @@
   "systems": {
     "doom": {
       "shortName": "Doom",
-      "compression": false
+      "compression": false,
+      "games": [
+        {
+          "id": "shareware",
+          "filename": "Doom - Shareware.whd",
+          "$comment": "Converted here from doom1-shareware.wad with this project's whd_gen, so it carries the deterministic Huffman ordering; upstream's committed .whd predates that fix and differs. The name is the one the variant table gives this dump, so a user converting the same WAD overwrites it instead of getting a second copy.",
+          "label": {
+            "en": "Doom (shareware episode)"
+          },
+          "description": {
+            "en": "Knee-Deep in the Dead, the freely redistributable first episode, converted and published with this release. Installs ready to play, so the core does something useful before the user supplies a WAD of their own. The other episodes and Doom II need WADs you own, converted with the tool above."
+          }
+        }
+      ]
     }
   },
   "tool": {
@@ -28,8 +41,8 @@
         },
         "description": {
           "en": "An IWAD from a Doom game you own. Each WAD is converted separately into its own game on the card.",
-          "fr": "Un IWAD d'un jeu Doom que vous possédez. Chaque WAD est converti séparément en son propre jeu sur la carte.",
-          "de": "Eine IWAD aus einem Doom-Spiel, das Ihnen gehört. Jede WAD wird einzeln in ein eigenes Spiel auf der Karte umgewandelt."
+          "fr": "Un IWAD d'un jeu Doom que vous poss\u00e9dez. Chaque WAD est converti s\u00e9par\u00e9ment en son propre jeu sur la carte.",
+          "de": "Eine IWAD aus einem Doom-Spiel, das Ihnen geh\u00f6rt. Jede WAD wird einzeln in ein eigenes Spiel auf der Karte umgewandelt."
         },
         "extensions": [
           ".wad"
