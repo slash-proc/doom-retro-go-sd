@@ -37,7 +37,12 @@ CI reads the matching section and uses it as the GitHub Release notes.
   bytes. The name is the one the variant table gives that dump, so a user who
   later converts the same WAD overwrites it instead of ending up with two
   copies.
-- `gwrg.json` declares it through the spec's new `systems[].games[]`, the
+- `originalSystem: "dos"`. Doom came from DOS, and a core that ships one game
+  is a port like any homebrew -- but the field was homebrew-only, so this
+  project could not say so. The spec now draws the line at whether a project is
+  a single work rather than at its `kind`. It is a hint for anything looking up
+  box art, which would otherwise search blind by name.
+- `gwrg.json` declares the shipped game through the spec's new `systems[].games[]`, the
   ROM-folder counterpart of a shipped BIOS: published beside the manifest,
   mirrored and hash-checked, installed to `roms/<system id>/`.
 
