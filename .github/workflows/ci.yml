@@ -65,15 +65,11 @@ jobs:
             make --no-print-directory -j"$(nproc)" all
 
       # The shareware episode, converted with this project's own whd_gen so it
-      # matches what the converter page produces today. Built in the same image
-      # as the core because it uses the same host tool.
+      # matches what the converter page produces today. Runs on the runner, not
+      # in the builder image: whd_gen is a native host tool and that image is a
+      # cross-compiler with no host gcc.
       - name: Build the shipped game
-        run: |
-          docker run --rm --user "$(id -u):$(id -g)" \
-            -v "${{ github.workspace }}:/opt/workdir" \
-            -w /opt/workdir \
-            "${{ env.DOCKER_IMAGE }}" \
-            make --no-print-directory shipped-games
+        run: make --no-print-directory shipped-games
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
