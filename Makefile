@@ -29,6 +29,9 @@ HEADER_LOGO := assets/header.bmp
 # CI / stage_release.py metadata (this tree is a CORE only).
 PROJECT_KIND := core
 CORE_NAME := doom
+# Header version: git describe → pack_core extracts leading vX.Y.Z (NOTAG → 0.0.0).
+# Override: make CORE_VERSION=v1.2.3
+CORE_VERSION ?= $(shell git describe --tags --dirty 2>/dev/null || echo NOTAG)
 
 # --- external flash slots (test-firmware flow only; the payload itself is a
 # RAM overlay and is link-address-independent of these) -----------------------
@@ -405,12 +408,13 @@ $(OUTWHD): $(BUILD)/doom1.wad FORCE
 core pack: $(PACKED_BIN)
 
 $(PACKED_BIN): $(OUTBIN) $(BUILD)/doom.out $(PAD_LOGO) $(HEADER_LOGO) $(PACK_CORE)
+	$(V)$(ECHO) [ PACK CORE ] $(PACKED_BIN) version=$(CORE_VERSION)
 	python3 $(PACK_CORE) \
 		--elf $(BUILD)/doom.out --bin $(OUTBIN) \
 		--system-name "Doom" --dirname doom \
 		--extensions "whd" \
 		--core-name "Doom" \
-		--version 1.0.0 \
+		--version "$(CORE_VERSION)" \
 		--pad-logo $(PAD_LOGO) \
 		--header-logo $(HEADER_LOGO) \
         --logo-invert \
@@ -535,7 +539,7 @@ build/firmware.bin: build/firmware.out
 # CI helpers + Docker (same image as firmware)
 #######################################
 .PHONY: print-PROJECT_KIND print-PACKED_BIN print-CORE_NAME print-DOCKER_IMAGE \
-        print-TARGET_ELF print-TARGET_MAP \
+        print-TARGET_ELF print-TARGET_MAP print-CORE_VERSION \
         docker docker_pull docker_shell
 
 print-PROJECT_KIND:
@@ -550,6 +554,8 @@ print-TARGET_ELF:
 	@echo $(TARGET_ELF)
 print-TARGET_MAP:
 	@echo $(TARGET_MAP)
+print-CORE_VERSION:
+	@echo $(CORE_VERSION)
 
 RELEASE_VERSION ?= v1.5
 DOCKER_REPOSITORY ?= sylverb/retro-go-sd-builder
