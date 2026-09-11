@@ -18,11 +18,26 @@ CI reads the matching section and uses it as the GitHub Release notes.
 
 ### Added
 
+- The SDK is taken from upstream's latest. The `components/odroid/` headers
+  move under `Core/Inc/porting/`, `gwhb.h` and `gw_firmware_abi.h` are
+  reworked, and `gnw_ram_uc_core.ld`, `bilinear.h`, `gw_buttons.h`, `gw_ofw.h`,
+  `appid.h` and `hw_sha1.h` arrive. Taken from upstream (`746e3a5`).
+- `scripts/resolve_addr.py`, which turns an address from a crash dump into a
+  file and line against the published ELF.
 - A browser conversion page, published to GitHub Pages by CI. It takes one
   folder, finds every `.wad` under it at any depth, converts each one and hands
   back a single zip already laid out for the card: `cores/doom.bin` and the
   converted games under `roms/doom/`. A recognised IWAD takes the name this
   project chose for it, so `DOOM.WAD` arrives as `The Ultimate Doom.whd`.
+
+### Changed
+
+- The core version comes from `git describe` rather than a fixed string.
+  `pack_core.py` now extracts the leading `vX.Y.Z` from describe output and
+  maps `NOTAG` to `0.0.0`, so the Makefile passes the describe string straight
+  through and a build from an untagged tree stops being an error. The release
+  job checks out full history for it. Taken from upstream (`de55b5d`,
+  `6986356`).
 
 ## [v0.2.1] - 2026-09-09
 

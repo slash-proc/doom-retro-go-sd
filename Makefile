@@ -29,7 +29,9 @@ HEADER_LOGO := assets/header.bmp
 # CI / stage_release.py metadata (this tree is a CORE only).
 PROJECT_KIND := core
 CORE_NAME := doom
-CORE_VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo 0.0.0)
+# Header version: git describe → pack_core extracts leading vX.Y.Z (NOTAG → 0.0.0).
+# Override: make CORE_VERSION=v1.2.3
+CORE_VERSION ?= $(shell git describe --tags --dirty 2>/dev/null || echo NOTAG)
 
 # --- external flash slots (test-firmware flow only; the payload itself is a
 # RAM overlay and is link-address-independent of these) -----------------------
@@ -54,6 +56,9 @@ endif
 
 # Objects land in build/core[/ -trace]
 BUILD := build/$(VARIANT)$(if $(filter 1,$(TRACE)),-trace)
+# Linked ELF + map for CI debug zip (names differ from template *_core.elf).
+TARGET_ELF := $(BUILD)/doom.out
+TARGET_MAP := $(BUILD)/main.map
 
 # Full WHD format for every convert (matches the full core binary).
 WHDFLAGS := -no-super-tiny
@@ -402,6 +407,7 @@ $(OUTWHD): $(BUILD)/doom1.wad FORCE
 core pack: $(PACKED_BIN)
 
 $(PACKED_BIN): $(OUTBIN) $(BUILD)/doom.out $(PAD_LOGO) $(HEADER_LOGO) $(PACK_CORE)
+	$(V)$(ECHO) [ PACK CORE ] $(PACKED_BIN) version=$(CORE_VERSION)
 	python3 $(PACK_CORE) \
 		--elf $(BUILD)/doom.out --bin $(OUTBIN) \
 		--system-name "Doom" --dirname doom \
@@ -548,12 +554,12 @@ print-CORE_NAME:
 	@echo $(CORE_NAME)
 print-DOCKER_IMAGE:
 	@echo $(DOCKER_IMAGE)
-# The engine links to $(BUILD)/doom.out with -Wl,-Map=$(BUILD)/main.map; both
-# are what the debug zip and the symbols[] entry publish.
+# TARGET_ELF / TARGET_MAP are what the debug zip and the symbols[] entry
+# publish.
 print-TARGET_ELF:
-	@echo $(BUILD)/doom.out
+	@echo $(TARGET_ELF)
 print-TARGET_MAP:
-	@echo $(BUILD)/main.map
+	@echo $(TARGET_MAP)
 print-CORE_VERSION:
 	@echo $(CORE_VERSION)
 

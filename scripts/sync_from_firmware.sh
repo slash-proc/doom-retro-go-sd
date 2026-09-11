@@ -21,7 +21,6 @@ INC=(
   -I"$FW/Core/Src/porting/core_common"
   -I"$FW/Core/Src/porting/lib"
   -I"$FW/Core/Src/porting/lib/FatFs"
-  -I"$FW/retro-go-stm32/components/odroid"
   -I"$FW/Drivers/STM32H7xx_HAL_Driver/Inc"
   -I"$FW/Drivers/STM32H7xx_HAL_Driver/Inc/Legacy"
   -I"$FW/Drivers/CMSIS/Device/ST/STM32H7xx/Include"
@@ -52,10 +51,14 @@ while IFS= read -r h; do
 done <<< "$DEPS"
 
 for extra in \
+  Core/Inc/retro-go/appid.h \
   Core/Inc/retro-go/gnw_core_meta.h \
   Core/Inc/retro-go/gwhb.h \
   Core/Inc/gw_malloc.h \
-  Core/Inc/heap.hpp
+  Core/Inc/gw_buttons.h \
+  Core/Inc/gw_ofw.h \
+  Core/Inc/heap.hpp \
+  Core/Src/porting/lib/hw_sha1.h
 do
   [[ -f "$FW/$extra" ]] || continue
   dest="$INC_ROOT/$extra"
@@ -74,7 +77,7 @@ done
 
 cp "$FW/ld/gnw_ram_emu.ld" "$ROOT/sdk/ld/gnw_ram_emu.ld"
 cp "$FW/ld/gnw_itcm_core.ld" "$ROOT/sdk/ld/gnw_itcm_core.ld"
-cp "$FW/ld/gnw_ahb_core.ld" "$ROOT/sdk/ld/gnw_ahb_core.ld"
+cp "$FW/ld/gnw_ram_uc_core.ld" "$ROOT/sdk/ld/gnw_ram_uc_core.ld"
 cp "$FW/tools/pack_core.py" "$ROOT/sdk/tools/pack_core.py"
 cp "$FW/tools/pack_homebrew.py" "$ROOT/sdk/tools/pack_homebrew.py"
 
