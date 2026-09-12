@@ -27,6 +27,7 @@ jobs:
       packed_bin: ${{ steps.meta.outputs.packed_bin }}
       target_elf: ${{ steps.meta.outputs.target_elf }}
       target_map: ${{ steps.meta.outputs.target_map }}
+      sidecars: ${{ steps.meta.outputs.sidecars }}
       ro_bin: ${{ steps.meta.outputs.ro_bin }}
 
     steps:
@@ -46,6 +47,17 @@ jobs:
           TARGET_ELF="$(make --no-print-directory -f Makefile print-TARGET_ELF)"
           TARGET_MAP="$(make --no-print-directory -f Makefile print-TARGET_MAP)"
           RO_BIN="$(make --no-print-directory -f Makefile print-RO_BIN)"
+          # Every extra device file, one per line: upload-artifact's `path` is a
+          # newline-separated list, and a project may have more than one. The
+          # older ro_bin output held a single slot, which is the limitation
+          # SIDECARS exists to remove.
+          SIDECARS="$(make --no-print-directory -f Makefile print-SIDECARS)"
+          {
+            echo "sidecars<<SIDECARS_EOF"
+            for s in ${SIDECARS}; do echo "${s}"; done
+            echo "SIDECARS_EOF"
+          } >> "${GITHUB_OUTPUT}"
+          echo "SIDECARS=${SIDECARS}"
           echo "project_kind=${PROJECT_KIND}" >> "${GITHUB_OUTPUT}"
           echo "packed_bin=${PACKED_BIN}" >> "${GITHUB_OUTPUT}"
           echo "target_elf=${TARGET_ELF}" >> "${GITHUB_OUTPUT}"
@@ -79,6 +91,7 @@ jobs:
             ${{ steps.meta.outputs.packed_bin }}
             ${{ steps.meta.outputs.target_elf }}
             ${{ steps.meta.outputs.target_map }}
+            ${{ steps.meta.outputs.sidecars }}
             ${{ steps.meta.outputs.ro_bin }}
             build/core/games/
           if-no-files-found: error
