@@ -14,7 +14,7 @@ When you cut a release:
 
 CI reads the matching section and uses it as the GitHub Release notes.
 
-## [Unreleased]
+## [v0.3.0] - 2026-09-12
 
 ### Added
 
