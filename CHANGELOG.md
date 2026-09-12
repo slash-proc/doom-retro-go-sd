@@ -14,6 +14,17 @@ When you cut a release:
 
 CI reads the matching section and uses it as the GitHub Release notes.
 
+## [v0.3.1] - 2026-09-12
+
+### Fixed
+
+- The offline bundle contains the shareware episode. `make_bundle.py` keeps its
+  own copy of the manifest's file list, and it had never learned about shipped
+  games, so v0.3.0's bundle declared the game and omitted its 3.3 MB -- an
+  offline install got a core with nothing to run. The conformance checker
+  verifies a bundle exists, not what is inside it, which is why that release
+  passed.
+
 ## [v0.3.0] - 2026-09-12
 
 ### Added
