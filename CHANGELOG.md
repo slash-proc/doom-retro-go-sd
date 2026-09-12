@@ -46,8 +46,18 @@ CI reads the matching section and uses it as the GitHub Release notes.
   ROM-folder counterpart of a shipped BIOS: published beside the manifest,
   mirrored and hash-checked, installed to `roms/<system id>/`.
 
+- `uses[].required` is false: the install works, and plays, without converting
+  anything, because the shareware episode ships with it. The converter's own
+  input stays required -- it cannot run without a WAD -- and it is still there
+  for the games a user owns. The version index therefore stops telling users
+  they must supply files for a release that plays out of the box.
+
 ### Fixed
 
+- The version index derived `needsUserFiles` from `inputs[].required` (can the
+  tool run) rather than `uses[].required` (does the install need the tool).
+  Nothing had exposed the difference until a project could ship a game. Taken
+  with the shared-script update; no published manifest changes meaning.
 - `merge_systems()` in the shared manifest generator set `biosDir` and
   `runtime` and then dropped both from the system it emitted. No project here
   declares `biosDir`, so Doom's own manifests were unaffected, but SMSPlusGX

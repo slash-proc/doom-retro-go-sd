@@ -90,5 +90,15 @@
         }
       }
     ]
-  }
+  },
+  "uses": [
+    {
+      "tool": "doom-whd",
+      "outputs": [
+        "whd"
+      ],
+      "required": false
+    }
+  ],
+  "$comment": "uses[].required is false because the shareware episode ships with the release: the install works, and plays, without converting anything. The converter is for the WADs a user owns, and its own input stays required -- it cannot run without a file."
 }
