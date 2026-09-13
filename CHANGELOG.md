@@ -14,6 +14,12 @@ When you cut a release:
 
 CI reads the matching section and uses it as the GitHub Release notes.
 
+## [v0.3.2] - 2026-09-13
+
+### Changed
+
+- Publish conservative runtime save and savestate support metadata for LFS sizing.
+
 ## [v0.3.1] - 2026-09-12
 
 ### Fixed
