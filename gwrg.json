@@ -4,6 +4,10 @@
     "doom": {
       "shortName": "Doom",
       "compression": false,
+      "runtime": {
+        "savestate": { "supported": true },
+        "save": { "supported": true }
+      },
       "games": [
         {
           "id": "shareware",
