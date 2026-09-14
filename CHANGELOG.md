@@ -14,6 +14,13 @@ When you cut a release:
 
 CI reads the matching section and uses it as the GitHub Release notes.
 
+## [v0.3.3] - 2026-09-14
+
+### Changed
+
+- Bound persistent-save storage at 16 bytes, matching the settings blob
+  written by the current SRAM callback.
+
 ## [v0.3.2] - 2026-09-13
 
 ### Changed
